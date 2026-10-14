@@ -31,7 +31,7 @@ def main():
         subprocess.run([bun, 'install', '--frozen-lockfile'], cwd=viewer, check=True)
     subprocess.run([bun, 'run', 'scripts/check-report.ts', str(report_path)], cwd=viewer, check=True)
     port = choose_port(args.port)
-    print(f'\nRepo Flow Canvas: http://127.0.0.1:{port}\nViewer source: {viewer}\n', flush=True)
+    print(f'\nGodEyes: http://127.0.0.1:{port}\nViewer source: {viewer}\n', flush=True)
     env = {**os.environ, 'REPO_FLOW_REPORT': str(report_path), 'NEXT_TELEMETRY_DISABLED': '1'}
     child = subprocess.Popen([bun, 'run', 'dev', '--hostname', '127.0.0.1', '--port', str(port)], cwd=viewer, env=env)
     try: return child.wait()

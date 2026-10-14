@@ -1,9 +1,9 @@
 ---
-name: repo-flow-canvas
-description: Trace and review JavaScript/TypeScript application behavior from repository code, then open source-backed flow diagrams in a localhost canvas. Use for visual code walkthroughs and feature-flow reviews; not for live execution tracing or changing application behavior.
+name: godeyes
+description: Trace and review JavaScript/TypeScript application behavior, including PHP backends, from repository code, then open source-backed flow diagrams in a localhost canvas. Use for visual code walkthroughs and feature-flow reviews; not for live execution tracing or changing application behavior.
 ---
 
-# Repo Flow Canvas
+# GodEyes
 
 Produce a code-grounded app overview and one detailed feature flow, with review findings attached to the behavior they affect. The included Next.js viewer uses Dacoo-inspired cards and a vertical canvas.
 

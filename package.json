@@ -1,6 +1,8 @@
 {
-  "name": "repo-flow-canvas",
+  "name": "godeyes",
   "version": "0.1.0",
+  "description": "Source-backed repository flow diagrams and code review",
+  "license": "MIT",
   "private": true,
   "scripts": {
     "setup": "bun install --cwd assets/viewer --frozen-lockfile",

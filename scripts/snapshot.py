@@ -10,7 +10,7 @@ from datetime import datetime, timezone
 import uuid
 
 EXCLUDED = {'.git', 'node_modules', '.next', 'dist', 'build', 'coverage', 'vendor', '.cache', '.turbo', '__pycache__'}
-SUFFIXES = {'.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs', '.json', '.md', '.css', '.scss', '.yaml', '.yml', '.html', '.sql', '.graphql'}
+SUFFIXES = {'.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs', '.php', '.json', '.md', '.css', '.scss', '.yaml', '.yml', '.html', '.sql', '.graphql'}
 
 def allowed(path):
     return not (set(path.parts) & EXCLUDED) and not path.name.startswith('.env') and path.suffix not in {'.pem', '.key', '.p12'}

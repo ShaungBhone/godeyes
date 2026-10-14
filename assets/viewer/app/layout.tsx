@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 const inter = Inter({subsets:['latin'],variable:'--font-sans'})
 
 export const metadata: Metadata = {
-  title: "Repo Flow Canvas",
+  title: "GodEyes",
   description: "Source-backed application behavior and code review on a local canvas.",
   robots: { index: false, follow: false },
 }

@@ -27,11 +27,11 @@ def main():
     require_bun = shutil.which('bun')
     if not require_bun: raise ValueError('Bun is required. Install Bun, then rerun this launcher.')
     shutil.copytree(source, runtime, dirs_exist_ok=True, ignore=shutil.ignore_patterns('node_modules', '.next', '.git', '*.tsbuildinfo', 'playwright-report', 'test-results', '.DS_Store', '__pycache__'))
-    marker.write_text('repo-flow-canvas runtime\n')
+    marker.write_text('godeyes runtime\n')
     subprocess.run([require_bun, 'install', '--frozen-lockfile'], cwd=runtime, check=True)
     subprocess.run([require_bun, 'run', 'scripts/check-report.ts', str(report_path)], cwd=runtime, check=True)
     port = choose_port(args.port)
-    print(f'\nRepo Flow Canvas: http://127.0.0.1:{port}\nReport: {report_path}\nStop with Ctrl+C.\n', flush=True)
+    print(f'\nGodEyes: http://127.0.0.1:{port}\nReport: {report_path}\nStop with Ctrl+C.\n', flush=True)
     env = {**os.environ, 'REPO_FLOW_REPORT': str(report_path), 'NEXT_TELEMETRY_DISABLED': '1'}
     process = subprocess.Popen([require_bun, 'run', 'dev', '--hostname', '127.0.0.1', '--port', str(port)], cwd=runtime, env=env)
     try: return process.wait()

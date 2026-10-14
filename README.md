@@ -1,6 +1,30 @@
-# Repo Flow Canvas
+# GodEyes
 
-A source-backed code review skill and localhost behavior-diagram viewer. Built with Bun, Next.js, React Flow, and shadcn sidebar-07 using preset b7Br6guwa.
+See how your code works.
+
+GodEyes turns repository code into interactive flow diagrams, with source evidence, confidence labels, and review findings. It supports JavaScript/TypeScript applications, including PHP backends, and runs the viewer on localhost. Built with Bun, Next.js, React Flow, and shadcn.
+
+## Install and use
+
+Install Python 3.9+ and Bun, then clone this repository and install the skill:
+
+```bash
+git clone https://github.com/ShaungBhone/godeyes.git
+cd godeyes
+python3 scripts/install.py
+```
+
+The installer copies the skill and viewer template into `~/.agents/skills/godeyes`, the [personal skills location used by Codex](https://learn.chatgpt.com/docs/build-skills#where-codex-loads-local-skills). Use `--destination` to choose another location. It excludes dependencies, local reports, caches, and development-only skill files, and leaves an existing installation untouched.
+
+In a Codex chat opened on the repository you want to review, ask:
+
+```text
+Use $godeyes to trace and review this repository's login flow.
+```
+
+Replace `login flow` with the feature you want to understand. The skill reads the source, creates a report with evidence and findings, and opens a localhost canvas. It resolves its own bundled scripts and viewer; users do not need to reference a developer's filesystem path or find `SKILL.md` themselves.
+
+The analyzed application is never executed or modified. After changing its code, invoke the skill again for a fresh snapshot.
 
 ## Start development
 
@@ -36,10 +60,10 @@ bun run build
 
 Browser checks run against a live demo via `bun run test:e2e`. On macOS with installed Chrome, set `PLAYWRIGHT_CHROMIUM_EXECUTABLE='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'`. Set `REPO_FLOW_URL` if the viewer is running on another port.
 
-## Use the skill
-
-In Codex: `Use $repo-flow-canvas to review /path/to/repo and diagram its login flow.` The globally installed skill remains available independently of this source project. This repository includes the complete editable package.
-
 ## Canvas controls
 
 The sidebar starts as a compact icon rail; toggle it from the header or with Cmd/Ctrl+B. The 36px view row switches between Canvas, Findings, and Overview. Select a step or connection for source evidence, add notes in the inspector, and export the report with annotations. Snapshot details are in Overview.
+
+## License
+
+GodEyes is released under the [MIT License](LICENSE).
