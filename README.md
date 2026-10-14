@@ -4,6 +4,8 @@ See how your code works.
 
 GodEyes turns repository code into interactive flow diagrams, with source evidence, confidence labels, and review findings. It supports JavaScript/TypeScript applications, including PHP backends, and runs the viewer on localhost. Built with Bun, Next.js, React Flow, and shadcn.
 
+![GodEyes showing a recap generation flow with source evidence and review findings](docs/images/godeyes-canvas.png)
+
 ## Install and use
 
 Install Python 3.9+ and Bun, then clone this repository and install the skill:
