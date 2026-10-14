@@ -1,0 +1,14 @@
+{
+  "name": "repo-flow-canvas",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "setup": "bun install --cwd assets/viewer --frozen-lockfile",
+    "dev": "python3 scripts/develop.py",
+    "build": "bun run --cwd assets/viewer build",
+    "typecheck": "bun run --cwd assets/viewer typecheck",
+    "lint": "bun run --cwd assets/viewer lint",
+    "test": "python3 scripts/test_helpers.py && bun run --cwd assets/viewer test",
+    "test:e2e": "bun run --cwd assets/viewer test:e2e"
+  }
+}

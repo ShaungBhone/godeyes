@@ -1,0 +1,12 @@
+node_modules/
+.next/
+.local/
+coverage/
+test-results/
+playwright-report/
+__pycache__/
+*.pyc
+*.tsbuildinfo
+.DS_Store
+.env*
+!.env.example

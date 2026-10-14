@@ -1,0 +1,455 @@
+{
+  "schemaVersion": 1,
+  "repository": {
+    "name": "Login demo \u00b7 fixture",
+    "path": "/demo-fixture",
+    "revision": "8ac5362cac1d2ca8c33cd6fc425a77bcf599ff52",
+    "dirty": true,
+    "snapshotId": "test-fixture-snapshot",
+    "capturedAt": "2026-10-13T15:52:04.544388Z",
+    "fingerprint": "e9ea4462660b2f2083ca7ad4659b298c4ea31af22e93616c8e9bbbe109e56a70"
+  },
+  "overview": {
+    "summary": "A small Next.js-style login fixture used to demonstrate static flow analysis and code review. It is source material, not a running authentication app.",
+    "stack": [
+      "TypeScript",
+      "Next.js route handler",
+      "Fetch API"
+    ],
+    "entryPoints": [
+      {
+        "label": "Login form submission",
+        "evidence": [
+          {
+            "file": "app/login/submit.ts",
+            "startLine": 2,
+            "endLine": 12,
+            "excerpt": "export async function submitLogin(email: string, password: string) {\n  if (!email || !password) return { screen: 'validation-error' };\n  try {\n    const response = await fetch('/api/login', {\n      method: 'POST', body: JSON.stringify({ email, password }),\n    });\n    if (!response.ok) return { screen: 'login-error' };\n    return { screen: 'dashboard' };\n  } catch {\n    return { screen: 'network-error' };\n  }",
+            "fileHash": "ca33b0a54a4511abec1cff59cfbc1547d16be00ad1aeb36af2f86283b80896e6"
+          }
+        ]
+      },
+      {
+        "label": "POST /api/login",
+        "evidence": [
+          {
+            "file": "app/api/login/route.ts",
+            "startLine": 2,
+            "endLine": 18,
+            "excerpt": "export async function POST(request: Request) {\n  try {\n    const body = await request.json();\n    if (!body.email || !body.password) {\n      return Response.json({ error: 'Missing credentials' }, { status: 400 });\n    }\n    const identity = await fetch('https://identity.example.test/check', {\n      method: 'POST', body: JSON.stringify(body),\n    });\n    if (!identity.ok) {\n      return Response.json({ error: 'Invalid credentials' }, { status: 401 });\n    }\n    return Response.json({ authenticated: true });\n  } catch {\n    return Response.json({ error: 'Identity provider unavailable' }, { status: 503 });\n  }\n}",
+            "fileHash": "adb26ad8ace67c4bd3524cd5fc329a2ce9e5d9143f3de4df8726cca93812b374"
+          }
+        ]
+      }
+    ]
+  },
+  "flows": [
+    {
+      "id": "login",
+      "title": "Login flow",
+      "description": "From credential submission to the dashboard, including validation and service failures.",
+      "nodes": [
+        {
+          "id": "submit",
+          "title": "Submit login",
+          "description": "The user submits email and password to the login handler.",
+          "kind": "entry",
+          "symbol": "submitLogin()",
+          "confidence": "confirmed",
+          "evidence": [
+            {
+              "file": "app/login/submit.ts",
+              "startLine": 2,
+              "endLine": 3,
+              "excerpt": "export async function submitLogin(email: string, password: string) {\n  if (!email || !password) return { screen: 'validation-error' };",
+              "fileHash": "ca33b0a54a4511abec1cff59cfbc1547d16be00ad1aeb36af2f86283b80896e6"
+            }
+          ]
+        },
+        {
+          "id": "validate",
+          "title": "Check required fields",
+          "description": "Both email and password must be present before calling the API.",
+          "kind": "decision",
+          "symbol": "email && password",
+          "confidence": "confirmed",
+          "evidence": [
+            {
+              "file": "app/login/submit.ts",
+              "startLine": 3,
+              "endLine": 3,
+              "excerpt": "  if (!email || !password) return { screen: 'validation-error' };",
+              "fileHash": "ca33b0a54a4511abec1cff59cfbc1547d16be00ad1aeb36af2f86283b80896e6"
+            }
+          ]
+        },
+        {
+          "id": "validation-error",
+          "title": "Show validation error",
+          "description": "Missing credentials return the validation-error screen immediately.",
+          "kind": "outcome",
+          "symbol": "validation-error",
+          "confidence": "confirmed",
+          "evidence": [
+            {
+              "file": "app/login/submit.ts",
+              "startLine": 3,
+              "endLine": 3,
+              "excerpt": "  if (!email || !password) return { screen: 'validation-error' };",
+              "fileHash": "ca33b0a54a4511abec1cff59cfbc1547d16be00ad1aeb36af2f86283b80896e6"
+            }
+          ]
+        },
+        {
+          "id": "api",
+          "title": "Send login request",
+          "description": "POST credentials to /api/login. The server also checks required fields.",
+          "kind": "action",
+          "symbol": "POST /api/login",
+          "confidence": "confirmed",
+          "evidence": [
+            {
+              "file": "app/api/login/route.ts",
+              "startLine": 2,
+              "endLine": 7,
+              "excerpt": "export async function POST(request: Request) {\n  try {\n    const body = await request.json();\n    if (!body.email || !body.password) {\n      return Response.json({ error: 'Missing credentials' }, { status: 400 });\n    }",
+              "fileHash": "adb26ad8ace67c4bd3524cd5fc329a2ce9e5d9143f3de4df8726cca93812b374"
+            }
+          ]
+        },
+        {
+          "id": "provider",
+          "title": "Check external identity",
+          "description": "The route sends credentials to an external service. Its implementation is unavailable.",
+          "kind": "external",
+          "symbol": "identity.example.test",
+          "confidence": "unresolved",
+          "evidence": [
+            {
+              "file": "app/api/login/route.ts",
+              "startLine": 8,
+              "endLine": 10,
+              "excerpt": "    const identity = await fetch('https://identity.example.test/check', {\n      method: 'POST', body: JSON.stringify(body),\n    });",
+              "fileHash": "adb26ad8ace67c4bd3524cd5fc329a2ce9e5d9143f3de4df8726cca93812b374"
+            }
+          ]
+        },
+        {
+          "id": "check",
+          "title": "Check provider response",
+          "description": "A successful HTTP response is treated as authenticated; every other HTTP status becomes 401.",
+          "kind": "decision",
+          "symbol": "identity.ok",
+          "confidence": "confirmed",
+          "evidence": [
+            {
+              "file": "app/api/login/route.ts",
+              "startLine": 11,
+              "endLine": 14,
+              "excerpt": "    if (!identity.ok) {\n      return Response.json({ error: 'Invalid credentials' }, { status: 401 });\n    }\n    return Response.json({ authenticated: true });",
+              "fileHash": "adb26ad8ace67c4bd3524cd5fc329a2ce9e5d9143f3de4df8726cca93812b374"
+            }
+          ]
+        },
+        {
+          "id": "reject",
+          "title": "Show login error",
+          "description": "A rejected request returns login-error to the user.",
+          "kind": "outcome",
+          "symbol": "login-error",
+          "confidence": "confirmed",
+          "evidence": [
+            {
+              "file": "app/login/submit.ts",
+              "startLine": 8,
+              "endLine": 8,
+              "excerpt": "    if (!response.ok) return { screen: 'login-error' };",
+              "fileHash": "ca33b0a54a4511abec1cff59cfbc1547d16be00ad1aeb36af2f86283b80896e6"
+            }
+          ]
+        },
+        {
+          "id": "dashboard",
+          "title": "Open dashboard screen",
+          "description": "A successful API response opens the dashboard. No session is established in the traced code.",
+          "kind": "outcome",
+          "symbol": "dashboard",
+          "confidence": "confirmed",
+          "evidence": [
+            {
+              "file": "app/login/submit.ts",
+              "startLine": 9,
+              "endLine": 9,
+              "excerpt": "    return { screen: 'dashboard' };",
+              "fileHash": "ca33b0a54a4511abec1cff59cfbc1547d16be00ad1aeb36af2f86283b80896e6"
+            }
+          ]
+        },
+        {
+          "id": "unavailable",
+          "title": "Return service error",
+          "description": "The server catches provider errors and returns HTTP 503.",
+          "kind": "action",
+          "symbol": "HTTP 503",
+          "confidence": "confirmed",
+          "evidence": [
+            {
+              "file": "app/api/login/route.ts",
+              "startLine": 15,
+              "endLine": 17,
+              "excerpt": "  } catch {\n    return Response.json({ error: 'Identity provider unavailable' }, { status: 503 });\n  }",
+              "fileHash": "adb26ad8ace67c4bd3524cd5fc329a2ce9e5d9143f3de4df8726cca93812b374"
+            }
+          ]
+        },
+        {
+          "id": "network-error",
+          "title": "Show network error",
+          "description": "A rejected browser fetch returns the network-error screen.",
+          "kind": "outcome",
+          "symbol": "network-error",
+          "confidence": "confirmed",
+          "evidence": [
+            {
+              "file": "app/login/submit.ts",
+              "startLine": 10,
+              "endLine": 11,
+              "excerpt": "  } catch {\n    return { screen: 'network-error' };",
+              "fileHash": "ca33b0a54a4511abec1cff59cfbc1547d16be00ad1aeb36af2f86283b80896e6"
+            }
+          ]
+        }
+      ],
+      "edges": [
+        {
+          "id": "submit-validate",
+          "source": "submit",
+          "target": "validate",
+          "label": "Submit credentials",
+          "branch": "normal",
+          "confidence": "confirmed",
+          "evidence": [
+            {
+              "file": "app/login/submit.ts",
+              "startLine": 2,
+              "endLine": 3,
+              "excerpt": "export async function submitLogin(email: string, password: string) {\n  if (!email || !password) return { screen: 'validation-error' };",
+              "fileHash": "ca33b0a54a4511abec1cff59cfbc1547d16be00ad1aeb36af2f86283b80896e6"
+            }
+          ]
+        },
+        {
+          "id": "validate-validation-error",
+          "source": "validate",
+          "target": "validation-error",
+          "label": "Missing field",
+          "branch": "false",
+          "confidence": "confirmed",
+          "evidence": [
+            {
+              "file": "app/login/submit.ts",
+              "startLine": 3,
+              "endLine": 3,
+              "excerpt": "  if (!email || !password) return { screen: 'validation-error' };",
+              "fileHash": "ca33b0a54a4511abec1cff59cfbc1547d16be00ad1aeb36af2f86283b80896e6"
+            }
+          ]
+        },
+        {
+          "id": "validate-api",
+          "source": "validate",
+          "target": "api",
+          "label": "Both fields present",
+          "branch": "true",
+          "confidence": "confirmed",
+          "evidence": [
+            {
+              "file": "app/login/submit.ts",
+              "startLine": 3,
+              "endLine": 7,
+              "excerpt": "  if (!email || !password) return { screen: 'validation-error' };\n  try {\n    const response = await fetch('/api/login', {\n      method: 'POST', body: JSON.stringify({ email, password }),\n    });",
+              "fileHash": "ca33b0a54a4511abec1cff59cfbc1547d16be00ad1aeb36af2f86283b80896e6"
+            }
+          ]
+        },
+        {
+          "id": "api-provider",
+          "source": "api",
+          "target": "provider",
+          "label": "Await identity response",
+          "branch": "normal",
+          "confidence": "confirmed",
+          "evidence": [
+            {
+              "file": "app/api/login/route.ts",
+              "startLine": 8,
+              "endLine": 10,
+              "excerpt": "    const identity = await fetch('https://identity.example.test/check', {\n      method: 'POST', body: JSON.stringify(body),\n    });",
+              "fileHash": "adb26ad8ace67c4bd3524cd5fc329a2ce9e5d9143f3de4df8726cca93812b374"
+            }
+          ]
+        },
+        {
+          "id": "provider-check",
+          "source": "provider",
+          "target": "check",
+          "label": "HTTP response received",
+          "branch": "normal",
+          "confidence": "confirmed",
+          "evidence": [
+            {
+              "file": "app/api/login/route.ts",
+              "startLine": 8,
+              "endLine": 14,
+              "excerpt": "    const identity = await fetch('https://identity.example.test/check', {\n      method: 'POST', body: JSON.stringify(body),\n    });\n    if (!identity.ok) {\n      return Response.json({ error: 'Invalid credentials' }, { status: 401 });\n    }\n    return Response.json({ authenticated: true });",
+              "fileHash": "adb26ad8ace67c4bd3524cd5fc329a2ce9e5d9143f3de4df8726cca93812b374"
+            }
+          ]
+        },
+        {
+          "id": "check-reject",
+          "source": "check",
+          "target": "reject",
+          "label": "Non-success status",
+          "branch": "false",
+          "confidence": "confirmed",
+          "evidence": [
+            {
+              "file": "app/api/login/route.ts",
+              "startLine": 11,
+              "endLine": 12,
+              "excerpt": "    if (!identity.ok) {\n      return Response.json({ error: 'Invalid credentials' }, { status: 401 });",
+              "fileHash": "adb26ad8ace67c4bd3524cd5fc329a2ce9e5d9143f3de4df8726cca93812b374"
+            }
+          ]
+        },
+        {
+          "id": "check-dashboard",
+          "source": "check",
+          "target": "dashboard",
+          "label": "Success status",
+          "branch": "true",
+          "confidence": "confirmed",
+          "evidence": [
+            {
+              "file": "app/login/submit.ts",
+              "startLine": 8,
+              "endLine": 9,
+              "excerpt": "    if (!response.ok) return { screen: 'login-error' };\n    return { screen: 'dashboard' };",
+              "fileHash": "ca33b0a54a4511abec1cff59cfbc1547d16be00ad1aeb36af2f86283b80896e6"
+            }
+          ]
+        },
+        {
+          "id": "provider-unavailable",
+          "source": "provider",
+          "target": "unavailable",
+          "label": "Provider request throws",
+          "branch": "error",
+          "confidence": "confirmed",
+          "evidence": [
+            {
+              "file": "app/api/login/route.ts",
+              "startLine": 8,
+              "endLine": 17,
+              "excerpt": "    const identity = await fetch('https://identity.example.test/check', {\n      method: 'POST', body: JSON.stringify(body),\n    });\n    if (!identity.ok) {\n      return Response.json({ error: 'Invalid credentials' }, { status: 401 });\n    }\n    return Response.json({ authenticated: true });\n  } catch {\n    return Response.json({ error: 'Identity provider unavailable' }, { status: 503 });\n  }",
+              "fileHash": "adb26ad8ace67c4bd3524cd5fc329a2ce9e5d9143f3de4df8726cca93812b374"
+            }
+          ]
+        },
+        {
+          "id": "unavailable-reject",
+          "source": "unavailable",
+          "target": "reject",
+          "label": "API returns 503",
+          "branch": "error",
+          "confidence": "confirmed",
+          "evidence": [
+            {
+              "file": "app/login/submit.ts",
+              "startLine": 8,
+              "endLine": 8,
+              "excerpt": "    if (!response.ok) return { screen: 'login-error' };",
+              "fileHash": "ca33b0a54a4511abec1cff59cfbc1547d16be00ad1aeb36af2f86283b80896e6"
+            }
+          ]
+        },
+        {
+          "id": "api-network-error",
+          "source": "api",
+          "target": "network-error",
+          "label": "Browser fetch throws",
+          "branch": "error",
+          "confidence": "confirmed",
+          "evidence": [
+            {
+              "file": "app/login/submit.ts",
+              "startLine": 4,
+              "endLine": 11,
+              "excerpt": "  try {\n    const response = await fetch('/api/login', {\n      method: 'POST', body: JSON.stringify({ email, password }),\n    });\n    if (!response.ok) return { screen: 'login-error' };\n    return { screen: 'dashboard' };\n  } catch {\n    return { screen: 'network-error' };",
+              "fileHash": "ca33b0a54a4511abec1cff59cfbc1547d16be00ad1aeb36af2f86283b80896e6"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "id": "missing-session",
+      "flowId": "login",
+      "nodeIds": [
+        "dashboard",
+        "check"
+      ],
+      "title": "Success does not establish a login session",
+      "severity": "high",
+      "trigger": "The identity service returns a successful response and the API returns authenticated: true.",
+      "impact": "The client switches to the dashboard, but the traced implementation sets no session cookie or token. Subsequent requests have no authentication credential from this flow.",
+      "suggestion": "Verify the provider response, create a server-side session, and set an appropriate HTTP-only session cookie before returning success.",
+      "evidence": [
+        {
+          "file": "app/api/login/route.ts",
+          "startLine": 11,
+          "endLine": 14,
+          "excerpt": "    if (!identity.ok) {\n      return Response.json({ error: 'Invalid credentials' }, { status: 401 });\n    }\n    return Response.json({ authenticated: true });",
+          "fileHash": "adb26ad8ace67c4bd3524cd5fc329a2ce9e5d9143f3de4df8726cca93812b374"
+        },
+        {
+          "file": "app/login/submit.ts",
+          "startLine": 8,
+          "endLine": 9,
+          "excerpt": "    if (!response.ok) return { screen: 'login-error' };\n    return { screen: 'dashboard' };",
+          "fileHash": "ca33b0a54a4511abec1cff59cfbc1547d16be00ad1aeb36af2f86283b80896e6"
+        }
+      ]
+    },
+    {
+      "id": "provider-status",
+      "flowId": "login",
+      "nodeIds": [
+        "check",
+        "reject"
+      ],
+      "title": "Provider outages are reported as invalid credentials",
+      "severity": "medium",
+      "trigger": "The identity service responds with HTTP 429 or 5xx instead of throwing.",
+      "impact": "The server returns 401 Invalid credentials for every non-success response, hiding an upstream outage and misleading the user.",
+      "suggestion": "Handle explicit credential rejection separately from rate limits and provider failures, preserving a service-unavailable outcome.",
+      "evidence": [
+        {
+          "file": "app/api/login/route.ts",
+          "startLine": 11,
+          "endLine": 12,
+          "excerpt": "    if (!identity.ok) {\n      return Response.json({ error: 'Invalid credentials' }, { status: 401 });",
+          "fileHash": "adb26ad8ace67c4bd3524cd5fc329a2ce9e5d9143f3de4df8726cca93812b374"
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "Demonstration fixture only; the reviewed application is not executed.",
+    "The external identity provider implementation and response contract are unavailable.",
+    "Dashboard rendering, session middleware, and production deployment settings are outside the provided fixture."
+  ]
+}

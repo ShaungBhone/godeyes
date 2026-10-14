@@ -1,0 +1,4 @@
+interface:
+  display_name: "Repo Flow Canvas"
+  short_description: "Review code flows in a source-backed local canvas"
+  default_prompt: "Use $repo-flow-canvas to review this repository and visualize its login flow on localhost."
